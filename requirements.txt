@@ -1,0 +1,5 @@
+flask==0.12.2
+gunicorn==19.7.1
+gevent==1.2.2
+kafka-python==1.4.2
+lz4==1.1.0

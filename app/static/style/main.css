@@ -1,0 +1,11 @@
+md-switch {
+  margin: 0;
+}
+
+.highlight {
+  color: red;
+}
+
+.md-list-item-inner {
+  word-break: break-all;
+}

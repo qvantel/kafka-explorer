@@ -1,0 +1,39 @@
+<!doctype html>
+<html ng-app="app">
+<head>
+  <title>Kafka Explorer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Angular Material style sheet -->
+  <link rel="stylesheet" href="static/style/angular-material.min.css">
+  <!-- Material icons -->
+  <link rel="stylesheet" href="static/style/material_icons.css">
+
+  <link rel="stylesheet" href="static/style/main.css">
+</head>
+    <body>
+        <div class="container-fluid">
+            <div class="row">
+                <div ui-view="body"></div>
+            </div>
+        </div>
+
+        <!-- 3rd party libs -->
+        <script src="static/lib/angular_1.5.5.min.js"></script>
+        <script src="static/lib/angular-ui-router_0.3.0.js"></script>
+        <script src="static/lib/angular-animate_1.5.5.min.js"></script>
+        <script src="static/lib/angular-aria_1.5.5.min.js"></script>
+        <script src="static/lib/angular-messages_1.5.5.min.js"></script>
+        <script src="static/lib/angular-sanitize_1.5.5.min.js"></script>
+        <script src="static/lib/angular-material_1.1.6.min.js"></script>
+        <script src="static/lib/jszip.min.js"></script>
+        <script src="static/lib/FileSaver.min.js"></script>
+
+        <!-- Source files -->
+        <script src="static/app/app.js"></script>
+        <script src="static/app/app.states.js"></script>
+        <script src="static/app/search/search.module.js"></script>
+        <script src="static/app/search/search.controller.js"></script>
+        <script src="static/app/search/search.service.js"></script>
+        <script src="static/app/search/multi-highlight.filter.js"></script>
+    </body>
+</html>

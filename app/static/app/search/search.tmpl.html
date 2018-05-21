@@ -1,0 +1,197 @@
+<!-- Status bar -->
+<md-progress-linear md-mode="indeterminate" ng-disabled="!ctrl.source || ctrl.error"></md-progress-linear>
+<md-progress-linear class="md-warn" md-mode="query" ng-disabled="!ctrl.source || !ctrl.error"></md-progress-linear>
+
+<md-content class="md-padding">
+
+  <!-- Search form -->
+  <md-card>
+    <md-card-title>
+      <md-card-title-text>
+        <span class="md-headline">Search</span>
+      </md-card-title-text>
+    </md-card-title>
+
+    <md-card-content layout-padding>
+      <div>
+        <form name="searchForm">
+          <div layout-gt-sm="row">
+            <md-input-container class="md-block" flex-gt-sm>
+              <label>Topic</label>
+              <md-select ng-model="ctrl.searchParams.topic" name="topic" required>
+                <md-option ng-repeat="topic in ctrl.topics" ng-value="topic">
+                  {{topic}}
+                </md-option>
+              </md-select>
+              <div ng-messages="searchForm.topic.$error" multiple>
+                <div ng-message="required">
+                  You need to choose a topic
+                </div>
+              </div>
+            </md-input-container>
+
+            <md-input-container class="md-block" flex-gt-sm>
+              <label>Type</label>
+              <md-select ng-model="ctrl.searchParams.type" required>
+                <md-option value="plain">plain</md-option>
+                <md-option value="json">json</md-option>
+              </md-select>
+            </md-input-container>
+          </div>
+          <div layout-gt-sm="row" ng-repeat="pair in ctrl.searchParams.searchPairs">
+            <md-input-container class="md-block" flex-gt-sm>
+              <label>Key</label>
+              <input ng-model="pair.key" name="key" ng-disabled="ctrl.searchParams.type !== 'json'" ng-required="ctrl.searchParams.type === 'json'" ng-trim="false"/>
+              <div ng-messages="searchForm.key.$error" multiple>
+                <div ng-message="required">
+                  You need to provide a key to perform a json search
+                </div>
+              </div>
+            </md-input-container>
+
+            <md-input-container class="md-block" flex-gt-sm>
+              <label>Value</label>
+              <input ng-model="pair.value" name="value" required ng-trim="false"/>
+              <div ng-messages="searchForm.value.$error" multiple>
+                <div ng-message="required">
+                  You need to provide a search term
+                </div>
+              </div>
+            </md-input-container>
+
+            <md-input-container class="md-block">
+              <md-switch class="md-primary" name="exclude" ng-model="pair.exclude">
+                Exclude
+              </md-switch>
+            </md-input-container>
+
+            <md-input-container class="md-block">
+              <md-button class="md-icon-button md-warn" aria-label="Remove" ng-click="ctrl.searchParams.removeSearchPair(pair)" ng-disabled="ctrl.searchParams.searchPairs.length <= 1">
+                <md-icon>remove</md-icon>
+              </md-button>
+              <md-button class="md-icon-button md-primary" aria-label="Add" ng-click="ctrl.searchParams.addSearchPair()" ng-disabled="ctrl.searchParams.searchPairs.length >= 4">
+                <md-icon>add</md-icon>
+              </md-button>
+            </md-input-container>
+          </div>
+
+          <div layout-gt-xs="row" layout-align="start start">
+            <md-input-container class="md-block" flex-gt-xs>
+              <label>Limit</label>
+              <input ng-model="ctrl.searchParams.limit" name="limit" type="number" step="1" min="1" max="500" required/>
+              <div ng-messages="searchForm.limit.$error" multiple>
+                <div ng-message="required">
+                  You need to set a limit
+                </div>
+                <div ng-message="min">
+                  Are you sure you want less than 1 match? If so I'm already done
+                </div>
+                <div ng-message="max">
+                  The maximum number of results at any given moment is 500
+                </div>
+                <div ng-message="step">
+                  I can't give you chunks of messages, use whole numbers
+                </div>
+              </div>
+            </md-input-container>
+
+            <md-input-container class="md-block">
+              <md-switch class="md-primary" name="stop" ng-model="ctrl.searchParams.stop">
+                Stop after limit
+              </md-switch>
+            </md-input-container>
+          </div>
+
+          <div layout="row" layout-align="space-between">
+            <span>
+              <p class="md-caption" ng-hide="ctrl.searchParams.stop">(A rolling window of the last {{ ctrl.searchParams.limit }} matches will be shown)</p>
+            </span>
+            <span layout="row" layout-align="end">
+              <md-button class="md-raised md-warn" ng-click="ctrl.stop()" ng-hide="!ctrl.source">Stop</md-button>
+              <md-button class="md-raised md-primary" ng-click="ctrl.changeSource()" ng-disabled="searchForm.$invalid">Submit</md-button>
+            </span>
+          </div>
+        </form>
+      </div>
+    </md-card-content>
+  </md-card>
+
+  <!-- Results list -->
+  <md-card>
+    <md-content md-theme="dark" md-colors="{background: 'accent-800'}" layout-padding layout="column">
+      <md-card-title>
+        <md-card-title-text layout="row" layout-align="space-between center">
+          <span class="md-headline">Results</span>
+          <span>
+            <md-button class="md-icon-button" aria-label="Toggle checkboxes" ng-click="ctrl.showBoxes = !ctrl.showBoxes" ng-disabled="ctrl.messages.length === 0">
+              <span ng-hide="ctrl.showBoxes">
+                <md-icon>check_box</md-icon>
+                <md-tooltip>Show checkboxes</md-tooltip>
+              </span>
+              <span ng-show="ctrl.showBoxes">
+                <md-icon>select_all</md-icon>
+                <md-tooltip>Select all</md-tooltip>
+              </span>
+            </md-button>
+            <md-menu md-position-mode="target-right target">
+              <md-button aria-label="Export..." class="md-raised md-primary" ng-click="$mdMenu.open($event)" ng-disabled="!ctrl.exportEnabled()">
+                Export
+              </md-button>
+              <md-menu-content width="4">
+                <md-menu-item>
+                  <md-button ng-click="ctrl.toZip()">
+                    <div layout="row" flex>
+                      <p flex>Download as zip</p>
+                      <md-icon md-menu-align-target style="margin: auto 3px auto 0;">folder</md-icon>
+                    </div>
+                  </md-button>
+                </md-menu-item>
+                <md-menu-item>
+                  <md-button ng-click="ctrl.toCsv()">
+                    <div layout="row" flex>
+                      <p flex>Download as csv</p>
+                      <md-icon md-menu-align-target style="margin: auto 3px auto 0;">insert_drive_file</md-icon>
+                    </div>
+                  </md-button>
+                </md-menu-item>
+              </md-menu-content>
+            </md-menu>
+          </span>
+        </md-card-title-text>
+      </md-card-title>
+      <div layout="row" layout-align="space-between center" ng-show="ctrl.searchMetadata.partitions != -1">
+        <div layot="column" class="md-body-1">
+            <p><b>Partitions:</b> {{ ctrl.searchMetadata.partitions }}</p>
+            <p><b>Total:</b> {{ ctrl.searchMetadata.total }}</p>
+            <p><b>Scanned:</b> {{ ctrl.searchMetadata.consumed }}</p>
+            <p><b>Matched:</b> {{ ctrl.matched }}</p>
+        </div>
+        <div layout-margin>
+            <md-progress-circular
+                class="md-primary md-hue-1"
+                md-mode="determinate"
+                value="{{(ctrl.searchMetadata.consumed/ctrl.searchMetadata.total) * 100 }}"
+                md-diameter="90"
+            ></md-progress-circular>
+        </div>
+      </div>
+    </md-content>
+
+    <md-card-content>
+      <md-list class="md-dense" flex>
+        <md-list-item class="md-3-line" ng-repeat="message in ctrl.messages">
+          <md-checkbox ng-model="message.selected" ng-show="ctrl.showBoxes"></md-checkbox>
+          <div class="md-list-item-text" layout="column">
+            <h3><b>Match #{{ ctrl.messages.length - $index }}</b></h3>
+            <h4 class="md-accent md-hue-2"><b>Partition:</b> {{ message.partition }} | <b>Offset:</b> {{ message.offset }} | <b>Timestamp:</b> {{ message.timestamp | date:'medium':'UTC' }} UTC</h4>
+            <p ng-bind-html="message.value | multiHighlight:ctrl.currentSearch.searchPairs"></p>
+          </div>
+        </md-list-item>
+      </md-list>
+
+      <div ng-show="ctrl.messages.length === 0" layout="row" layout-align="start">
+        <p class="md-body-1">Nothing to show</p>
+      </div>
+    </md-card-content>
+  </md-card>
+</md-content>
