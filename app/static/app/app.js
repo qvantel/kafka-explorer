@@ -4,6 +4,7 @@ angular.module('app', [
     'ngMessages',
     'ngSanitize',
     'ui.router',
+    'ngMaterialDatePicker',
     'search'
 ])
 .config(function($mdThemingProvider) {

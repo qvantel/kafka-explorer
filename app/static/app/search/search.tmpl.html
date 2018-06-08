@@ -38,6 +38,7 @@
               </md-select>
             </md-input-container>
           </div>
+
           <div layout-gt-sm="row" ng-repeat="pair in ctrl.searchParams.searchPairs">
             <md-input-container class="md-block" flex-gt-sm>
               <label>Key</label>
@@ -76,6 +77,21 @@
           </div>
 
           <div layout-gt-xs="row" layout-align="start start">
+
+            <md-input-container class="md-block">
+              <input mdc-datetime-picker date="true" time="true" type="text" id="datetime"
+                     show-todays-date
+                     placeholder="Starting at"
+                     ng-model="ctrl.searchParams.timestamp"
+                     max-date="ctrl.now"
+                     ng-disabled="!ctrl.searchParams.timeFilter">
+            </md-input-container>
+
+            <md-input-container class="md-block">
+              <md-switch class="md-primary" name="timestamp" ng-model="ctrl.searchParams.timeFilter" aria-label="Filter by timestamp"></md-switch>
+              <md-tooltip>Filter by timestamp</md-tooltip>
+            </md-input-container>
+
             <md-input-container class="md-block" flex-gt-xs>
               <label>Limit</label>
               <input ng-model="ctrl.searchParams.limit" name="limit" type="number" step="1" min="1" max="500" required/>
@@ -179,11 +195,11 @@
 
     <md-card-content>
       <md-list class="md-dense" flex>
-        <md-list-item class="md-3-line" ng-repeat="message in ctrl.messages">
+        <md-list-item class="md-3-line" ng-repeat="message in ctrl.messages track by message.partition + ';' + message.offset">
           <md-checkbox ng-model="message.selected" ng-show="ctrl.showBoxes"></md-checkbox>
           <div class="md-list-item-text" layout="column">
             <h3><b>Match #{{ ctrl.messages.length - $index }}</b></h3>
-            <h4 class="md-accent md-hue-2"><b>Partition:</b> {{ message.partition }} | <b>Offset:</b> {{ message.offset }} | <b>Timestamp:</b> {{ message.timestamp | date:'medium':'UTC' }} UTC</h4>
+            <h4 class="md-accent md-hue-2"><b>Partition:</b> {{ message.partition }} | <b>Offset:</b> {{ message.offset }} | <b>Timestamp:</b> {{ message.timestamp | date:'medium' }} </h4>
             <p ng-bind-html="message.value | multiHighlight:ctrl.currentSearch.searchPairs"></p>
           </div>
         </md-list-item>

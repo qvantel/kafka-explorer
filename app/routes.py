@@ -14,7 +14,7 @@ except KeyError:
     raise
 
 try:
-    api_version = tuple(map(lambda x: int(x), os.environ.get('BROKER_API_VERSION', '0.10').split('.')))
+    api_version = tuple(map(lambda x: int(x), os.environ.get('BROKER_API_VERSION', '0.10.2.1').split('.')))
 except ValueError:
     print('Error: The env var BROKER_API_VERSION has to be a string formed by numbers and dots!')
     raise
@@ -49,7 +49,7 @@ def count():
         api_version=api_version
     )
     consumer.poll(1)
-    result = utils.get_message_count(consumer)
+    result = utils.get_message_count(consumer, -1)
     consumer.close()
     return str(result)
 
@@ -61,6 +61,7 @@ def search():
         search_type = args.get('type')
         exclude = utils.decode_search_pairs(args.get('exclude'))
         include = utils.decode_search_pairs(args.get('include'))
+        start = int(args.get('start', '-1'))
 
         consumer = KafkaConsumer(
             topic,
@@ -73,15 +74,18 @@ def search():
 
         consumed = 0
         consumer.poll(1)  # Poll to load metadata
-        last_count = utils.get_message_count(consumer)
+        last_count = utils.get_message_count(consumer, start)
         yield utils.consumer_meta_to_sse(consumer, last_count, consumed)
-        consumer.seek_to_beginning()  # Reset offsets in case poll consumed any messages
+        if start >= 0:
+            utils.seek_to_timestamp(consumer, start)  # Seek to start point
+        else:
+            consumer.seek_to_beginning()  # Reset offsets in case poll consumed any messages
 
         for message in consumer:
             value = message.value.decode('utf-8')
             consumed = consumed + 1
             if consumed % report_interval == 0 or consumed >= last_count:
-                last_count = utils.get_message_count(consumer)
+                last_count = utils.get_message_count(consumer, start)
                 yield utils.consumer_meta_to_sse(consumer, last_count, consumed)
             if search_type == 'json':
                 try:

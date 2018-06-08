@@ -83,13 +83,56 @@ def consumer_meta_to_sse(consumer, count, consumed):
     return "event: metadata\ndata: %s\n\n" % (json.dumps(data))
 
 
-def get_message_count(consumer):
+def get_timestamp_offsets(consumer, start):
     """
-    For obtaining the current total message count of all the assigned partitions for a kafka consumer
+    For obtaining the offsets for the earliest messages in each partition with a timestamp greater or equal to the given
     :param consumer: Kafka consumer object
+    :param start: Timestamp in milliseconds
+    :return: TopicPartition to int (offset) dict
+    """
+    partitions = list(consumer.assignment())
+    pairs = map(lambda item: {item: start}, partitions)
+    acc = {}
+    for pair in pairs:
+        acc.update(pair)
+    offsets = consumer.offsets_for_times(acc)
+    end = consumer.end_offsets(partitions)
+    result = {}
+    for offset in offsets.items():
+        if offset[1]:
+            result.update({offset[0]: offset[1].offset})
+        else:
+            result.update({offset[0]: end[offset[0]]})
+    return result
+
+
+def get_message_count(consumer, start):
+    """
+    For obtaining the current total message count of all the assigned partitions for a kafka consumer, from the
+    beginning or a given timestamp
+    :param consumer: Kafka consumer object
+    :param start: Timestamp in milliseconds (use -1 to disable)
     :return: Sum of the message counts
     """
     partitions = list(consumer.assignment())
-    start = consumer.beginning_offsets(partitions)
+    if start >= 0:
+        beginning = get_timestamp_offsets(consumer, start)
+    else:
+        beginning = consumer.beginning_offsets(partitions)
     end = consumer.end_offsets(partitions)
-    return reduce(lambda acc, key: acc + end[key] - start[key], end, 0)
+    return reduce(lambda acc, key: acc + end[key] - beginning[key], end, 0)
+
+
+def seek_to_timestamp(consumer, start):
+    """
+    For seeking a consumer's offsets to the first message with an equivalent or greater timestamp in each partition (be
+    aware that if no message with the same or greater timestamp is present in a partition it will just seek to it's
+    end to avoid failures)
+    :param consumer: Kafka consumer object
+    :param start: Timestamp in milliseconds
+    :return: Nothing, it just modifies the state of the consumer
+    """
+    partitions = list(consumer.assignment())
+    offsets = get_timestamp_offsets(consumer, start)
+    for partition in partitions:
+        consumer.seek(partition, offsets[partition])

@@ -1,7 +1,10 @@
 angular.module('search')
   .controller('SearchCtrl', function SearchCtrl($scope, SearchService) {
     var searchCtrl = this;
+    var today = new Date();
+    today.setHours(0, 0, 0, 0);
 
+    searchCtrl.now = new Date();
     searchCtrl.currentSearch = null;
     searchCtrl.messages = [];
     searchCtrl.matched = 0;
@@ -13,7 +16,9 @@ angular.module('search')
       'type': 'plain',
       'searchPairs': [],
       'limit': 50,
-      'stop': false
+      'stop': false,
+      'timeFilter': false,
+      'timestamp': today
     });
     searchCtrl.searchParams.addSearchPair();
     searchCtrl.showBoxes = false;
@@ -29,14 +34,18 @@ angular.module('search')
       this.searchPairs = form.searchPairs;
       this.limit = form.limit;
       this.stop = form.stop;
+      this.timeFilter = form.timeFilter;
+      this.timestamp = form.timestamp;
 
       this.clone = function () {
-        var that = {}
+        var that = {};
         that.topic = this.topic;
         that.type = this.type;
         that.searchPairs = JSON.parse(JSON.stringify(this.searchPairs));
         that.limit = this.limit;
         that.stop = this.stop;
+        that.timeFilter = this.timeFilter;
+        that.timestamp = this.timestamp;
 
         return new SearchParams(that);
       };
@@ -137,7 +146,8 @@ angular.module('search')
         'total': -1,
         'consumed': -1
       }
-      searchCtrl.source = new EventSource('/search?topic=' + searchCtrl.currentSearch.topic + '&type=' + searchCtrl.currentSearch.type + searchCtrl.currentSearch.encodedPairs());
+      var timestamp = (searchCtrl.currentSearch.timeFilter)? '&start=' + searchCtrl.currentSearch.timestamp.getTime()  : '';
+      searchCtrl.source = new EventSource('/search?topic=' + searchCtrl.currentSearch.topic + '&type=' + searchCtrl.currentSearch.type + searchCtrl.currentSearch.encodedPairs() + timestamp);
       searchCtrl.source.addEventListener('open', onOpen, false);
       searchCtrl.source.addEventListener('message', onMessage, false);
       searchCtrl.source.addEventListener('metadata', onMetadata, false);

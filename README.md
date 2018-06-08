@@ -1,6 +1,11 @@
 # Kafka Explorer
 
+![Build status](https://img.shields.io/docker/build/qvantel/kafka-explorer.svg)
+![Docker pulls](https://img.shields.io/docker/pulls/qvantel/kafka-explorer.svg)
+
 Welcome to the kafka explorer repo! This tool is a web app for searching kafka topics.
+
+![Timestamp search screenshot](screenshots/timestamp_search.png)
 
 ## Deployment
 
@@ -10,7 +15,7 @@ To deploy simply use the following command filling in the broker list:
 docker run -d -m 512m --log-driver json-file --log-opt max-size="1m" \
   -p 5000:5000 \
   -e "KAFKA_BOOTSTRAP_BROKERS=<list of bootstrap brokers>" \
-  --name kafka-explorer qvantel/kafka-explorer:0.5.0
+  --name kafka-explorer qvantel/kafka-explorer:0.6.0
 ```
 
 The following environment variables are available:
@@ -20,7 +25,7 @@ The following environment variables are available:
 - `WORKERS`: Number of gevent workers, min(10, (cpus * 2) +  1) by default
 - `REPORT_INTERVAL`: Interval at which a metadata event with a refreshed total message count will be generated (every
                      100 consumed messages by default)
-- `BROKER_API_VERSION`: Kafka API version to use, '0.10' by default
+- `BROKER_API_VERSION`: Kafka API version to use, '0.10.2.1' by default
 
 ## Use
 
@@ -38,6 +43,11 @@ configured).
 
 At least one search term is required and up to four can be used in parallel. When using multiple terms, kafka explorer
 will show results that don't match **any** of the excluded and match **all** of the included (if any).
+
+### Start Timestamp
+
+Search scope can be limited to messages newer than a certain moment in time. This is done by pressing the toggle to the
+right of the "Start at" field and selecting a date and time.
 
 ### Limit
 
