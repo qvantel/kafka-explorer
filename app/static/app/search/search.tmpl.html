@@ -18,10 +18,15 @@
           <div layout-gt-sm="row">
             <md-input-container class="md-block" flex-gt-sm>
               <label>Topic</label>
-              <md-select ng-model="ctrl.searchParams.topic" name="topic" required>
-                <md-option ng-repeat="topic in ctrl.topics" ng-value="topic">
-                  {{topic}}
-                </md-option>
+              <md-select ng-model="ctrl.searchParams.topic" name="topic" data-md-container-class="comp-select-header" md-on-close="ctrl.topicSearchTerm=''" required>
+                <md-select-header class="select-header">
+                  <input id="topic-search" ng-model="ctrl.topicSearchTerm" type="search" placeholder="Search for a topic..." class="select-header-searchbox md-text">
+                </md-select-header>
+                <md-optgroup label="topics">
+                  <md-option ng-repeat="topic in ctrl.topics | filter:ctrl.topicSearchTerm" ng-value="topic">
+                    {{topic}}
+                  </md-option>
+                </md-optgroup>
               </md-select>
               <div ng-messages="searchForm.topic.$error" multiple>
                 <div ng-message="required">

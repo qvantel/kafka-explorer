@@ -3,7 +3,8 @@
 ![Build status](https://img.shields.io/docker/build/qvantel/kafka-explorer.svg)
 ![Docker pulls](https://img.shields.io/docker/pulls/qvantel/kafka-explorer.svg)
 
-Welcome to the kafka explorer repo! This tool is a web app for searching kafka topics.
+Welcome to the kafka explorer repo! This tool is a web app for searching kafka topics. It's been tested with kafka
+0.10.x and 1.1.x but should have no problems with anything from 0.10.0 to 1.x and limited functionality with 0.9.x.
 
 ![Timestamp search screenshot](screenshots/timestamp_search.png)
 
@@ -15,7 +16,7 @@ To deploy simply use the following command filling in the broker list:
 docker run -d -m 512m --log-driver json-file --log-opt max-size="1m" \
   -p 5000:5000 \
   -e "KAFKA_BOOTSTRAP_BROKERS=<list of bootstrap brokers>" \
-  --name kafka-explorer qvantel/kafka-explorer:0.6.0
+  --name kafka-explorer qvantel/kafka-explorer:0.7.0
 ```
 
 The following environment variables are available:

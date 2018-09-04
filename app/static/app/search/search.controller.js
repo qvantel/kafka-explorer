@@ -11,11 +11,12 @@ angular.module('search')
     searchCtrl.topics = [];
     searchCtrl.error = false;
     searchCtrl.source = null;
+    searchCtrl.topicSearchTerm = '';
     searchCtrl.searchParams = new SearchParams({
       'topic': '',
       'type': 'plain',
       'searchPairs': [],
-      'limit': 50,
+      'limit': 25,
       'stop': false,
       'timeFilter': false,
       'timestamp': today
@@ -189,5 +190,9 @@ angular.module('search')
     searchCtrl.exportEnabled = function () {
       return (searchCtrl.messages.length > 0 && !searchCtrl.showBoxes) || (searchCtrl.messages.filter(function (msg){return msg.selected}).length > 0);
     };
+
+    angular.element(document.querySelector("#topic-search")).on('keydown', function(ev) {
+      ev.stopPropagation();
+    });
   })
 ;

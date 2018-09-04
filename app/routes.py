@@ -34,7 +34,7 @@ def topics():
     consumer = KafkaConsumer(bootstrap_servers=servers)
     results = consumer.topics()
     consumer.close()
-    return json.dumps(list(results))
+    return json.dumps(sorted(results))
 
 
 @app.route('/count')
