@@ -10,6 +10,10 @@ md-switch {
   word-break: break-all;
 }
 
+md-list-item.md-3-line .md-list-item-text, md-list-item.md-3-line>.md-no-style .md-list-item-text {
+  margin: 8px;
+}
+
 .comp-select-header {
   /* Please note: All these selectors are only applied to children of elements with the 'comp-select-header' class */
 }

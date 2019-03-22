@@ -46,11 +46,11 @@
 
           <div layout-gt-sm="row" ng-repeat="pair in ctrl.searchParams.searchPairs">
             <md-input-container class="md-block" flex-gt-sm>
-              <label>Key</label>
+              <label>Attribute</label>
               <input ng-model="pair.key" name="key" ng-disabled="ctrl.searchParams.type !== 'json'" ng-required="ctrl.searchParams.type === 'json'" ng-trim="false"/>
               <div ng-messages="searchForm.key.$error" multiple>
                 <div ng-message="required">
-                  You need to provide a key to perform a json search
+                  You need to provide an attribute name to perform a json search
                 </div>
               </div>
             </md-input-container>
@@ -204,7 +204,9 @@
           <md-checkbox ng-model="message.selected" ng-show="ctrl.showBoxes"></md-checkbox>
           <div class="md-list-item-text" layout="column">
             <h3><b>Match #{{ ctrl.messages.length - $index }}</b></h3>
-            <h4 class="md-accent md-hue-2"><b>Partition:</b> {{ message.partition }} | <b>Offset:</b> {{ message.offset }} | <b>Timestamp:</b> {{ message.timestamp | date:'medium' }} </h4>
+            <h4 class="md-accent md-hue-2"><b>Partition:</b> {{ message.partition }} | <b>Offset:</b> {{ message.offset }} | <b>Timestamp:</b> {{ message.timestamp | date:'medium' }}</h4>
+            <p ng-if="message.headers.length > 0"><b>Headers:</b> {{message.headers}}</p>
+            <p ng-if="message.key !== 'None'"><b>Key:</b> <span ng-bind-html="message.key | multiHighlight:ctrl.currentSearch.searchPairs"></span></p>
             <p ng-bind-html="message.value | multiHighlight:ctrl.currentSearch.searchPairs"></p>
           </div>
         </md-list-item>

@@ -1,6 +1,8 @@
 from functools import reduce
 import json
 
+from kafka.consumer.fetcher import ConsumerRecord
+
 
 def decode_search_pairs(raw_pairs):
     """
@@ -46,10 +48,20 @@ def is_present(key, value, dictionary):
     return reduce(lambda x, y: x or y, list(find(key, value, dictionary)), False)
 
 
-def message_to_sse(message, value, consumed):
+def headers_to_json(headers):
+    """
+    For getting a usable header array for the ui
+    :param headers: Headers as a tuple array
+    :return: Headers as a json object array with attributes for key and value
+    """
+    return list(map(lambda header: {'key': header[0], 'value': header[1].decode('utf-8')}, headers))
+
+
+def message_to_sse(message: ConsumerRecord, key: str, value: str, consumed: int):
     """
     For building valid server-sent events from kafka messages
     :param message: Original kafka message object
+    :param key: Parsed key of the message
     :param value: Parsed payload of the message
     :param consumed: Current consumed count
     :return: Json string for the resulting SSE
@@ -60,7 +72,8 @@ def message_to_sse(message, value, consumed):
                 'timestamp': message.timestamp,
                 'partition': message.partition,
                 'offset': message.offset,
-                'key': message.key if isinstance(message.key, str) else 'not a string',
+                'headers': headers_to_json(message.headers),
+                'key': key,
                 'value': value
             }
     return "data: %s\n\n" % (json.dumps(data))

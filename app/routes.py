@@ -14,7 +14,7 @@ except KeyError:
     raise
 
 try:
-    api_version = tuple(map(lambda x: int(x), os.environ.get('BROKER_API_VERSION', '0.10.2.1').split('.')))
+    api_version = tuple(map(lambda x: int(x), os.environ.get('BROKER_API_VERSION', '1.1.0').split('.')))
 except ValueError:
     print('Error: The env var BROKER_API_VERSION has to be a string formed by numbers and dots!')
     raise
@@ -82,6 +82,7 @@ def search():
             consumer.seek_to_beginning()  # Reset offsets in case poll consumed any messages
 
         for message in consumer:
+            key = 'None' if message.key is None else message.key.decode('utf-8')
             value = message.value.decode('utf-8')
             consumed = consumed + 1
             if consumed % report_interval == 0 or consumed >= last_count:
@@ -92,12 +93,12 @@ def search():
                     jdata = json.loads(value)
                     if not any(utils.is_present(pair['key'], pair['value'], jdata) for pair in exclude):
                         if len(include) == 0 or all(utils.is_present(pair['key'], pair['value'], jdata) for pair in include):
-                            yield utils.message_to_sse(message, value, consumed)
+                            yield utils.message_to_sse(message, key, value, consumed)
                 except ValueError:
                     pass
-            elif not any(pair['value'] in value for pair in exclude):
-                if len(include) == 0 or all(pair['value'] in value for pair in include):
-                    yield utils.message_to_sse(message, value, consumed)
+            elif not any((pair['value'] in value or (key != 'None' and pair['value'] in key)) for pair in exclude):
+                if len(include) == 0 or all((pair['value'] in value or (key != 'None' and pair['value'] in key)) for pair in include):
+                    yield utils.message_to_sse(message, key, value, consumed)
         consumer.close()
 
     return Response(generate(request.args.copy()), mimetype='text/event-stream')

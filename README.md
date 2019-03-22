@@ -4,7 +4,8 @@
 ![Docker pulls](https://img.shields.io/docker/pulls/qvantel/kafka-explorer.svg)
 
 Welcome to the kafka explorer repo! This tool is a web app for searching kafka topics. It's been tested with kafka
-0.10.x and 1.1.x but should have no problems with anything from 0.10.0 to 1.x and limited functionality with 0.9.x.
+0.10.x, 1.1.x and 2.1.x but should have no problems with anything from 0.11.0.0 to 2.x and
+limited functionality with 0.9.x and 0.10.0 (as headers weren't introduced till 0.11.0.0).
 
 ![Timestamp search screenshot](screenshots/timestamp_search.png)
 
@@ -16,7 +17,7 @@ To deploy simply use the following command filling in the broker list:
 docker run -d -m 512m --log-driver json-file --log-opt max-size="1m" \
   -p 5000:5000 \
   -e "KAFKA_BOOTSTRAP_BROKERS=<list of bootstrap brokers>" \
-  --name kafka-explorer qvantel/kafka-explorer:0.7.0
+  --name kafka-explorer qvantel/kafka-explorer:0.8.0
 ```
 
 The following environment variables are available:
@@ -26,7 +27,7 @@ The following environment variables are available:
 - `WORKERS`: Number of gevent workers, min(10, (cpus * 2) +  1) by default
 - `REPORT_INTERVAL`: Interval at which a metadata event with a refreshed total message count will be generated (every
                      100 consumed messages by default)
-- `BROKER_API_VERSION`: Kafka API version to use, '0.10.2.1' by default
+- `BROKER_API_VERSION`: Kafka API version to use, '1.1.0' by default
 
 ## Use
 
@@ -35,10 +36,12 @@ configured).
 
 ### Search Types
 
-  - Plain text: To find messages that contain a certain string in a topic select plain and fill in the value field.
+  - Plain text: To find messages that contain a certain string in a topic select plain and fill in the value field. This
+    type of search will also check the key of the Kafka message if present.
 
-  - Json key value: To find specific key value pairs in the messages of a topic select json and fill in both parameters.
-    In this type of search, messages that aren't valid json strings will be ignored (unless only exclusions are applied).
+  - Json key value: To find specific attribute value pairs in the messages of a topic select json and fill in both
+    parameters. In this type of search, messages that aren't valid json strings will be ignored (unless only exclusions
+    are applied).
 
 ### Search Terms
 
@@ -69,3 +72,5 @@ save.
 Once at least one message is selected, the export button will turn blue. At this point just press the button and then
 select a mode. After picking, your browser will start the download (the file will be named `<topic>_<browser time>` with
 an extension dependant on the export mode).
+
+Note that headers and key will only be included in the csv export.

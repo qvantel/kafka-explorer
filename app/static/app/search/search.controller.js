@@ -156,10 +156,10 @@ angular.module('search')
     };
 
     searchCtrl.toCsv = function () {
-      var csvContent = 'data:text/csv;charset=utf-8,Timestamp;Partition;Offset;Message\r\n';
+      var csvContent = 'data:text/csv;charset=utf-8,Timestamp;Partition;Offset;Headers;Key;Message\r\n';
       searchCtrl.messages.forEach( function (message) {
         if(message.selected || !searchCtrl.showBoxes){
-          csvContent += message.timestamp + ';' + message.partition + ';' + message.offset + ';' + message.value + '\r\n';
+          csvContent += message.timestamp + ';' + message.partition + ';' + message.offset + ';' + JSON.stringify(message.headers) + ';' + message.key + ';' + message.value + '\r\n';
         }
       });
       var encodedUri = encodeURI(csvContent);
