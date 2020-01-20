@@ -1,4 +1,4 @@
-FROM python:3.7.2-alpine3.9
+FROM python:3.8.0-alpine3.10
 
 RUN mkdir -p /opt/docker
 

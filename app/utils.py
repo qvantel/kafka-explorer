@@ -1,7 +1,40 @@
 from functools import reduce
 import json
+import ssl
 
 from kafka.consumer.fetcher import ConsumerRecord
+
+
+def get_ssl_context(log, config):
+    """
+    Adapted from https://github.com/dpkp/kafka-python/blob/eed25fc36110b12ec370b4d0e332173abce9076f/kafka/conn.py#L453
+    to solve the "certificate verify failed" errors when using 1-way TLS. Creates an SSL context with the given config
+    values.
+    :param log: Logger object
+    :param config: Object with the ssl params to use for the creation of the ssl context
+    :return: SSLContext
+    """
+    ssl_context = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
+    ssl_context.options |= ssl.OP_NO_SSLv2
+    ssl_context.options |= ssl.OP_NO_SSLv3
+    ssl_context.verify_mode = ssl.CERT_NONE
+    if config['ssl_check_hostname']:
+        ssl_context.check_hostname = True
+    if config['ssl_cafile']:
+        log.debug(f'Loading SSL CA from {config["ssl_cafile"]}')
+        ssl_context.load_verify_locations(config['ssl_cafile'])
+        ssl_context.verify_mode = ssl.CERT_REQUIRED
+    if config['ssl_certfile'] and config['ssl_keyfile']:
+        log.debug(f'Loading SSL cert from {config["ssl_certfile"]}')
+        log.debug(f'Loading SSL key from {config["ssl_keyfile"]}')
+        ssl_context.load_cert_chain(
+            certfile=config['ssl_certfile'],
+            keyfile=config['ssl_keyfile'],
+            password=config['ssl_password'])
+    if config['ssl_ciphers']:
+        log.debug(f'Setting SSL ciphers to {config["ssl_ciphers"]}')
+        ssl_context.set_ciphers(config['ssl_ciphers'])
+    return ssl_context
 
 
 def decode_search_pairs(raw_pairs):
@@ -67,16 +100,16 @@ def message_to_sse(message: ConsumerRecord, key: str, value: str, consumed: int)
     :return: Json string for the resulting SSE
     """
     data = {
-                'topic': message.topic,
-                'consumed': consumed,
-                'timestamp': message.timestamp,
-                'partition': message.partition,
-                'offset': message.offset,
-                'headers': headers_to_json(message.headers),
-                'key': key,
-                'value': value
-            }
-    return "data: %s\n\n" % (json.dumps(data))
+        'topic': message.topic,
+        'consumed': consumed,
+        'timestamp': message.timestamp,
+        'partition': message.partition,
+        'offset': message.offset,
+        'headers': headers_to_json(message.headers),
+        'key': key,
+        'value': value
+    }
+    return 'data: %s\n\n' % (json.dumps(data))
 
 
 def consumer_meta_to_sse(consumer, count, consumed):
@@ -89,11 +122,11 @@ def consumer_meta_to_sse(consumer, count, consumed):
     """
     partitions = list(consumer.assignment())
     data = {
-                'partitions': len(partitions),
-                'total': count,
-                'consumed': consumed
-           }
-    return "event: metadata\ndata: %s\n\n" % (json.dumps(data))
+        'partitions': len(partitions),
+        'total': count,
+        'consumed': consumed
+    }
+    return 'event: metadata\ndata: %s\n\n' % (json.dumps(data))
 
 
 def get_timestamp_offsets(consumer, start):

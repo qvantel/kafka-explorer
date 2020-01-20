@@ -1,6 +1,8 @@
 <!-- Status bar -->
-<md-progress-linear md-mode="indeterminate" ng-disabled="!ctrl.source || ctrl.error"></md-progress-linear>
-<md-progress-linear class="md-warn" md-mode="query" ng-disabled="!ctrl.source || !ctrl.error"></md-progress-linear>
+<div class="fixed-top-progressbar">
+  <md-progress-linear md-mode="indeterminate" ng-disabled="!ctrl.source || ctrl.error"></md-progress-linear>
+  <md-progress-linear class="md-warn" md-mode="query" ng-disabled="!ctrl.source || !ctrl.error"></md-progress-linear>
+</div>
 
 <md-content class="md-padding">
 
