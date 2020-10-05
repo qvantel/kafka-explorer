@@ -27,7 +27,7 @@ md-list-item.md-3-line .md-list-item-text, md-list-item.md-3-line>.md-no-style .
 }
 
 .comp-select-header .select-header {
-  box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.1), 0 0 0 0 rgba(0, 0, 0, 0.14), 0 0 0 0 rgba(0, 0, 0, 0.12);
+  box-shadow: 0 1px 0 0 rgba(0, 0, 0, .1), 0 0 0 0 rgba(0, 0, 0, .14), 0 0 0 0 rgba(0, 0, 0, .12);
   padding-left: 10.667px;
   height: 48px;
   cursor: pointer;
@@ -42,10 +42,10 @@ md-list-item.md-3-line .md-list-item-text, md-list-item.md-3-line>.md-no-style .
 }
 
 .fixed-top-progressbar {
-  position:fixed;
-  top:0px;
-  z-index:999999;
-  width:100%;
+  position: fixed;
+  top: 0;
+  z-index: 999999;
+  width: 100%;
 }
 
 .fixed-top-progressbar ._md-progress-linear-disabled {

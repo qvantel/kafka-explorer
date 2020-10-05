@@ -7,6 +7,8 @@ angular.module('search')
     searchCtrl.now = new Date();
     searchCtrl.currentSearch = null;
     searchCtrl.messages = [];
+    // Used for mitigating duplicates caused by https://github.com/dpkp/kafka-python/issues/1985
+    searchCtrl.ids = [];
     searchCtrl.matched = 0;
     searchCtrl.topics = [];
     searchCtrl.error = false;
@@ -63,9 +65,9 @@ angular.module('search')
       };
 
       this.encodedPairs = function () {
-        result = '';
-        include = this.searchPairs.filter(function (pair) { return !pair.exclude; });
-        exclude = this.searchPairs.filter(function (pair) { return pair.exclude; });
+        var result = '';
+        var include = this.searchPairs.filter(function (pair) { return !pair.exclude; });
+        var exclude = this.searchPairs.filter(function (pair) { return pair.exclude; });
         result += '&include=';
         include.forEach(function (pair, index) {
           result += pair.key + '<|,|>' + pair.value;
@@ -92,14 +94,20 @@ angular.module('search')
     var onMessage = function (msg) {
       $scope.$apply(function () {
         var parsedMsg = JSON.parse(msg.data);
+        var mID = parsedMsg.partition + ';' + parsedMsg.offset + ';' + parsedMsg.timestamp;
+        if(searchCtrl.ids.includes(mID)){
+            return;
+        }
         searchCtrl.matched += 1;
         searchCtrl.searchMetadata.consumed = parsedMsg.consumed;
         delete parsedMsg.consumed;
         searchCtrl.messages.unshift(parsedMsg);
+        searchCtrl.ids.unshift(mID);
         if(searchCtrl.messages.length >= searchCtrl.currentSearch.limit && searchCtrl.currentSearch.stop){
           searchCtrl.stop();
         } else if(searchCtrl.messages.length > searchCtrl.currentSearch.limit && !searchCtrl.currentSearch.stop) {
           searchCtrl.messages.pop();
+          searchCtrl.ids.pop();
         }
       });
     };
@@ -115,6 +123,7 @@ angular.module('search')
         if(searchCtrl.error){
           searchCtrl.error = false;
           searchCtrl.messages = [];
+          searchCtrl.ids = [];
           searchCtrl.matched = 0;
         }
       });
@@ -141,6 +150,7 @@ angular.module('search')
       searchCtrl.stop();
       searchCtrl.currentSearch = searchCtrl.searchParams.clone();
       searchCtrl.messages = [];
+      searchCtrl.ids = [];
       searchCtrl.matched = 0;
       searchCtrl.searchMetadata = {
         'partitions': -1,

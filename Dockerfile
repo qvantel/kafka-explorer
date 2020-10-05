@@ -1,4 +1,4 @@
-FROM python:3.8.0-alpine3.10
+FROM python:3.8.2-alpine3.11
 
 RUN mkdir -p /opt/docker
 
@@ -12,6 +12,8 @@ RUN apk add --no-cache gcc musl-dev && \
 
 ADD . /opt/docker
 
+ENV VERSION=0.9.1
+
 EXPOSE 5000
 
-CMD [ "gunicorn", "-c", "gunicorn.config.py", "app:app"]
+ENTRYPOINT [ "gunicorn", "-c", "gunicorn.config.py", "app:app"]

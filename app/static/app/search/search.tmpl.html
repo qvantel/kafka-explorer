@@ -184,10 +184,10 @@
       </md-card-title>
       <div layout="row" layout-align="space-between center" ng-show="ctrl.searchMetadata.partitions != -1">
         <div layot="column" class="md-body-1">
-            <p><b>Partitions:</b> {{ ctrl.searchMetadata.partitions }}</p>
-            <p><b>Total:</b> {{ ctrl.searchMetadata.total }}</p>
-            <p><b>Scanned:</b> {{ ctrl.searchMetadata.consumed }}</p>
-            <p><b>Matched:</b> {{ ctrl.matched }}</p>
+            <p><strong>Partitions:</strong> {{ ctrl.searchMetadata.partitions }}</p>
+            <p><strong>Total:</strong> {{ ctrl.searchMetadata.total }}</p>
+            <p><strong>Scanned:</strong> {{ ctrl.searchMetadata.consumed }}</p>
+            <p><strong>Matched:</strong> {{ ctrl.matched }}</p>
         </div>
         <div layout-margin>
             <md-progress-circular
@@ -202,13 +202,13 @@
 
     <md-card-content>
       <md-list class="md-dense" flex>
-        <md-list-item class="md-3-line" ng-repeat="message in ctrl.messages track by message.partition + ';' + message.offset">
+        <md-list-item class="md-3-line" ng-repeat="message in ctrl.messages track by message.partition + ';' + message.offset + ';' + message.timestamp">
           <md-checkbox ng-model="message.selected" ng-show="ctrl.showBoxes"></md-checkbox>
           <div class="md-list-item-text" layout="column">
-            <h3><b>Match #{{ ctrl.messages.length - $index }}</b></h3>
-            <h4 class="md-accent md-hue-2"><b>Partition:</b> {{ message.partition }} | <b>Offset:</b> {{ message.offset }} | <b>Timestamp:</b> {{ message.timestamp | date:'medium' }}</h4>
-            <p ng-if="message.headers.length > 0"><b>Headers:</b> {{message.headers}}</p>
-            <p ng-if="message.key !== 'None'"><b>Key:</b> <span ng-bind-html="message.key | multiHighlight:ctrl.currentSearch.searchPairs"></span></p>
+            <h3><strong>Match #{{ ctrl.messages.length - $index }}</strong></h3>
+            <h4 class="md-accent md-hue-2"><strong>Partition:</strong> {{ message.partition }} | <strong>Offset:</strong> {{ message.offset }} | <strong>Timestamp:</strong> {{ message.timestamp | date:'medium' }}</h4>
+            <p ng-if="message.headers.length > 0"><strong>Headers:</strong> {{message.headers}}</p>
+            <p ng-if="message.key !== 'None'"><strong>Key:</strong> <span ng-bind-html="message.key | multiHighlight:ctrl.currentSearch.searchPairs"></span></p>
             <p ng-bind-html="message.value | multiHighlight:ctrl.currentSearch.searchPairs"></p>
           </div>
         </md-list-item>

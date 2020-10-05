@@ -17,10 +17,10 @@ For a simple deployment the following command can be used (filling in the broker
 docker run -d -m 256m --log-driver json-file --log-opt max-size="1m" \
   -p 5000:5000 \
   -e "KAFKA_BOOTSTRAP_BROKERS=<list of bootstrap brokers>" \
-  --name kafka-explorer qvantel/kafka-explorer:0.9.0
+  --name kafka-explorer qvantel/kafka-explorer:0.9.1
 ```
 
-Enabling one-way TLS (without server validation):
+Enabling one-way auth TLS (without server validation):
 
 ```shell
 docker run -d -m 256m --log-driver json-file --log-opt max-size="1m" \
@@ -29,10 +29,10 @@ docker run -d -m 256m --log-driver json-file --log-opt max-size="1m" \
   -e "SECURITY_PROTOCOL=SSL" \
   -e "SSL_CHECK_HOSTNAME=false" \
   -e "SSL_CIPHERS=<list of ssl ciphers>" \
-  --name kafka-explorer qvantel/kafka-explorer:0.9.0
+  --name kafka-explorer qvantel/kafka-explorer:0.9.1
 ```
 
-Enabling two-way TLS:
+Enabling two-way auth TLS:
 
 ```shell
 docker run -d -m 256m --log-driver json-file --log-opt max-size="1m" \
@@ -46,27 +46,30 @@ docker run -d -m 256m --log-driver json-file --log-opt max-size="1m" \
   -e "SSL_CAFILE=<container path to pem ca>" \
   -e "SSL_CERTFILE=<container path to pem cert>" \
   -e "SSL_KEYFILE=<container path to client key>" \
-  --name kafka-explorer qvantel/kafka-explorer:0.9.0
+  --name kafka-explorer qvantel/kafka-explorer:0.9.1
 ```
 
 The following environment variables are available:
 
-- `KAFKA_BOOTSTRAP_BROKERS`: List of comma separated broker `host:port` pairs.
-- `LOG_LEVEL`: Gunicorn logging level, INFO by default
-- `WORKERS`: Number of gevent workers, min(10, (cpus * 2) +  1) by default
-- `REPORT_INTERVAL`: Interval at which a metadata event with a refreshed total message count will be generated (every
-                     100 consumed messages by default)
-- `BROKER_API_VERSION`: Kafka API version to use, '1.1.0' by default
-- `SECURITY_PROTOCOL`: Protocol used to communicate with brokers. Valid values are: PLAINTEXT (by default), SSL
-- `SSL_CHECK_HOSTNAME`: Flag to configure whether ssl handshake should verify that the certificate matches the brokers
-                        hostname ('true' by default, case insensitive, anything else will be evaluated to false)
-- `SSL_CAFILE`: Optional filename of ca file to use in certificate verification (None by default)
-- `SSL_CERTFILE`: Optional filename of file in pem format containing the client certificate, as well as any ca
-                  certificates needed to establish the certificate’s authenticity (None by default)
-- `SSL_KEYFILE`: Optional filename containing the client private key (None by default)
-- `SSL_PASSWORD`: Optional password to be used when loading the certificate chain (None by default)
-- `SSL_CIPHERS`:  Optionally set the available ciphers for ssl connections. It should be a string in the OpenSSL cipher
-                  list format.
+| Variable                  | Required | Default                            | Description                                                                                                                                                                        |
+|---------------------------|----------|------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| KAFKA_BOOTSTRAP_BROKERS   | YES      | N/A                                | List of comma separated broker `host:port` pairs                                                                                                                                   |
+| LOG_LEVEL                 | NO       | INFO                               | Application/root log level, supported values are `TRACE`, `DEBUG`, `INFO`, `WARNING`, `ERROR` and `CRITICAL`                                                                       |
+| GUNICORN_LOG_LEVEL        | NO       | INFO                               | Gunicorn log level, supported values are `DEBUG`, `INFO`, `WARNING`, `ERROR` and `CRITICAL`                                                                                        |
+| KAFKA_LOG_LEVEL           | NO       | ERROR                              | Kafka log level, supported values are `DEBUG`, `INFO`, `WARNING`, `ERROR` and `CRITICAL`                                                                                           |
+| MARATHON_APP_DOCKER_IMAGE | NO       | qvantel/kafka-explorer:${VERSION}? | Included in the `artifact_id` field of log messages, gets filled in automatically when ran through Marathon                                                                        |
+| SERVICE_5000_NAME         | NO       | $SERVICE_NAME                      | Included in the `service_name` field of the log messages. If set, overrides whatever is defined in `$SERVICE_NAME`                                                                 |
+| SERVICE_NAME              | NO       | kafka-explorer                     | Included in the `service_name` field of the log messages                                                                                                                           |
+| WORKERS                   | NO       | min(10, (cpus * 2) +  1)           | Number of gevent workers or in simpler terms, how many processes are started to handle client requests                                                                             |
+| REPORT_INTERVAL           | NO       | 100                                | Interval at which a metadata event with a refreshed total message count will be generated, defined as number of consumed messages between reports                                  |
+| BROKER_API_VERSION        | NO       | 1.1.1                              | Kafka API version to use                                                                                                                                                           |
+| SECURITY_PROTOCOL         | NO       | PLAINTEXT                          | Protocol used to communicate with brokers. Valid values are: PLAINTEXT (by default), SSL                                                                                           |
+| SSL_CHECK_HOSTNAME        | NO       | true                               | Flag to configure whether ssl handshake should verify that the certificate matches the broker's hostname (case insensitive, anything other than 'true' will be evaluated to false) |
+| SSL_CAFILE                | NO       | None                               | Optional filename of ca file to use in certificate verification                                                                                                                    |
+| SSL_CERTFILE              | NO       | None                               | Optional filename of file in pem format containing the client certificate, as well as any ca certificates needed to establish the certificate’s authenticity                       |
+| SSL_KEYFILE               | NO       | None                               | Optional filename containing the client private key                                                                                                                                |
+| SSL_PASSWORD              | NO       | None                               | Optional password to be used when loading the certificate chain                                                                                                                    |
+| SSL_CIPHERS               | NO       | None                               | Optionally set the available ciphers for ssl connections. It should be a string in the OpenSSL cipher list format                                                                  |
 
 ## Use
 
