@@ -20,7 +20,7 @@ app.logger.debug(f'Using {servers} as bootstrap brokers')
 # Optional vars
 
 try:
-    api_version = tuple(map(lambda x: int(x), os.environ.get('BROKER_API_VERSION', '1.1.1').split('.')))
+    api_version = tuple(map(lambda x: int(x), os.environ.get('BROKER_API_VERSION', '2.1.1').split('.')))
 except ValueError:
     app.logger.error('Error: The env var BROKER_API_VERSION has to be a string formed by numbers and dots!')
     raise

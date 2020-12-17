@@ -1,23 +1,23 @@
 # Kafka Explorer
 
-![Build status](https://img.shields.io/docker/build/qvantel/kafka-explorer.svg)
-![Docker pulls](https://img.shields.io/docker/pulls/qvantel/kafka-explorer.svg)
+[![Build status](https://img.shields.io/docker/build/qvantel/kafka-explorer.svg)](https://hub.docker.com/r/qvantel/kafka-explorer/builds)
+[![Docker pulls](https://img.shields.io/docker/pulls/qvantel/kafka-explorer.svg)](https://hub.docker.com/r/qvantel/kafka-explorer)
 
-Welcome to the kafka explorer repo! This tool is a web app for searching kafka topics. It's been tested with kafka
+Welcome to the Kafka Explorer repo! This tool is a web app for searching Kafka topics. It's been tested with Kafka
 0.10.x, 1.1.x and 2.1.x but should have no problems with anything from 0.11.0.0 to 2.x and
 limited functionality with 0.9.x and 0.10.0 (as headers weren't introduced till 0.11.0.0).
 
-![Timestamp search screenshot](screenshots/timestamp_search.png)
+![Timestamp search screenshot](https://github.com/qvantel/kafka-explorer/raw/master/screenshots/timestamp_search.png)
 
 ## Deployment
 
-For a simple deployment the following command can be used (filling in the broker list):
+For a simple deployment, the following command can be used (filling in the broker list):
 
 ```shell
 docker run -d -m 256m --log-driver json-file --log-opt max-size="1m" \
   -p 5000:5000 \
   -e "KAFKA_BOOTSTRAP_BROKERS=<list of bootstrap brokers>" \
-  --name kafka-explorer qvantel/kafka-explorer:0.9.1
+  --name kafka-explorer qvantel/kafka-explorer:0.9.2
 ```
 
 Enabling one-way auth TLS (without server validation):
@@ -29,7 +29,7 @@ docker run -d -m 256m --log-driver json-file --log-opt max-size="1m" \
   -e "SECURITY_PROTOCOL=SSL" \
   -e "SSL_CHECK_HOSTNAME=false" \
   -e "SSL_CIPHERS=<list of ssl ciphers>" \
-  --name kafka-explorer qvantel/kafka-explorer:0.9.1
+  --name kafka-explorer qvantel/kafka-explorer:0.9.2
 ```
 
 Enabling two-way auth TLS:
@@ -46,7 +46,7 @@ docker run -d -m 256m --log-driver json-file --log-opt max-size="1m" \
   -e "SSL_CAFILE=<container path to pem ca>" \
   -e "SSL_CERTFILE=<container path to pem cert>" \
   -e "SSL_KEYFILE=<container path to client key>" \
-  --name kafka-explorer qvantel/kafka-explorer:0.9.1
+  --name kafka-explorer qvantel/kafka-explorer:0.9.2
 ```
 
 The following environment variables are available:
@@ -62,7 +62,7 @@ The following environment variables are available:
 | SERVICE_NAME              | NO       | kafka-explorer                     | Included in the `service_name` field of the log messages                                                                                                                           |
 | WORKERS                   | NO       | min(10, (cpus * 2) +  1)           | Number of gevent workers or in simpler terms, how many processes are started to handle client requests                                                                             |
 | REPORT_INTERVAL           | NO       | 100                                | Interval at which a metadata event with a refreshed total message count will be generated, defined as number of consumed messages between reports                                  |
-| BROKER_API_VERSION        | NO       | 1.1.1                              | Kafka API version to use                                                                                                                                                           |
+| BROKER_API_VERSION        | NO       | 2.1.1                              | Kafka API version to use                                                                                                                                                           |
 | SECURITY_PROTOCOL         | NO       | PLAINTEXT                          | Protocol used to communicate with brokers. Valid values are: PLAINTEXT (by default), SSL                                                                                           |
 | SSL_CHECK_HOSTNAME        | NO       | true                               | Flag to configure whether ssl handshake should verify that the certificate matches the broker's hostname (case insensitive, anything other than 'true' will be evaluated to false) |
 | SSL_CAFILE                | NO       | None                               | Optional filename of ca file to use in certificate verification                                                                                                                    |
@@ -87,7 +87,7 @@ configured).
 
 ### Search Terms
 
-At least one search term is required and up to four can be used in parallel. When using multiple terms, kafka explorer
+At least one search term is required and up to four can be used in parallel. When using multiple terms, Kafka Explorer
 will show results that don't match **any** of the excluded and match **all** of the included (if any).
 
 ### Start Timestamp
@@ -113,18 +113,17 @@ save.
 
 Once at least one message is selected, the export button will turn blue. At this point just press the button and then
 select a mode. After picking, your browser will start the download (the file will be named `<topic>_<browser time>` with
-an extension dependant on the export mode).
+an extension dependent on the export mode).
 
 Note that headers and key will only be included in the csv export.
 
 ## Testing TLS
 
 In order to test the TLS functionality, we will need to create a CA and client and server certificates. To do so, we
-can follow this steps:
+can follow these steps:
 
 ### In the server
-##### We create server keystore
-
+##### We create a server keystore
 ```shell
 keytool -keystore kafka.server.keystore.jks -alias localhost -validity 999 -genkey
 ```
@@ -182,7 +181,6 @@ keytool -keystore kafka.client.keystore.jks -alias CARoot -import -file ca-cert 
 ```shell
 keytool -keystore kafka.client.keystore.jks -import -file client-cert-signed -alias my-local-pc1 -storepass "MyClientPassword123" -keypass "MyClientPassword123" -noprompt
 ```
-
 ##### We can use this command to list the content of a JKS
 ```shell
 keytool -list -rfc -keystore kafka.client.keystore.jks
@@ -206,7 +204,9 @@ rm key.pem.temp
 keytool -exportcert -alias CARoot -keystore kafka.client.keystore.jks -rfc \
         -file `CARoot.pem`
 ```
-After completing this process, we have all the necessary files for 2-way TLS connection between kafka-explorer and the kafka server:
+
+After completing this process, we have all the necessary files for a 2-way auth TLS connection between kafka-explorer
+and the Kafka broker:
 * kafka.server.keystore.jks: The server's keystore in jks format
 * kafka.server.truststore.jks: The server's truststore in jks format
 * kafka.client.keystore.jks: The client's keystore in jks format

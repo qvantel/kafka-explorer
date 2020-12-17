@@ -81,13 +81,21 @@ def is_present(key, value, dictionary):
     return reduce(lambda x, y: x or y, list(find(key, value, dictionary)), False)
 
 
-def headers_to_json(headers):
+def headers_to_json(headers) -> list[dict]:
     """
     For getting a usable header array for the ui
     :param headers: Headers as a tuple array
     :return: Headers as a json object array with attributes for key and value
     """
-    return list(map(lambda header: {'key': header[0], 'value': header[1].decode('utf-8')}, headers))
+    res = []
+    for header in headers:
+        value = '<unsupported encoding>'
+        try:
+            value = header[1].decode('utf-8')
+        except UnicodeDecodeError:
+            pass
+        res.append({'key': header[0], 'value': value})
+    return res
 
 
 def message_to_sse(message: ConsumerRecord, key: str, value: str, consumed: int):
