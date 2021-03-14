@@ -1,7 +1,8 @@
 # Kafka Explorer
 
-[![Build status](https://img.shields.io/docker/build/qvantel/kafka-explorer.svg)](https://hub.docker.com/r/qvantel/kafka-explorer/builds)
+[![Build status](https://img.shields.io/docker/cloud/build/qvantel/kafka-explorer.svg)](https://hub.docker.com/r/qvantel/kafka-explorer/builds)
 [![Docker pulls](https://img.shields.io/docker/pulls/qvantel/kafka-explorer.svg)](https://hub.docker.com/r/qvantel/kafka-explorer)
+[![Release](https://img.shields.io/github/v/release/qvantel/kafka-explorer.svg)](https://github.com/qvantel/kafka-explorer/releases/latest)
 
 Welcome to the Kafka Explorer repo! This tool is a web app for searching Kafka topics. It's been tested with Kafka
 0.10.x, 1.1.x and 2.1.x but should have no problems with anything from 0.11.0.0 to 2.x and
@@ -17,7 +18,7 @@ For a simple deployment, the following command can be used (filling in the broke
 docker run -d -m 256m --log-driver json-file --log-opt max-size="1m" \
   -p 5000:5000 \
   -e "KAFKA_BOOTSTRAP_BROKERS=<list of bootstrap brokers>" \
-  --name kafka-explorer qvantel/kafka-explorer:0.9.2
+  --name kafka-explorer qvantel/kafka-explorer:0.9.3
 ```
 
 Enabling one-way auth TLS (without server validation):
@@ -29,7 +30,7 @@ docker run -d -m 256m --log-driver json-file --log-opt max-size="1m" \
   -e "SECURITY_PROTOCOL=SSL" \
   -e "SSL_CHECK_HOSTNAME=false" \
   -e "SSL_CIPHERS=<list of ssl ciphers>" \
-  --name kafka-explorer qvantel/kafka-explorer:0.9.2
+  --name kafka-explorer qvantel/kafka-explorer:0.9.3
 ```
 
 Enabling two-way auth TLS:
@@ -46,7 +47,7 @@ docker run -d -m 256m --log-driver json-file --log-opt max-size="1m" \
   -e "SSL_CAFILE=<container path to pem ca>" \
   -e "SSL_CERTFILE=<container path to pem cert>" \
   -e "SSL_KEYFILE=<container path to client key>" \
-  --name kafka-explorer qvantel/kafka-explorer:0.9.2
+  --name kafka-explorer qvantel/kafka-explorer:0.9.3
 ```
 
 The following environment variables are available:

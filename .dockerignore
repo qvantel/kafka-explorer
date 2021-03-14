@@ -3,7 +3,6 @@ __pycache__/
 kafkaexp
 .dockerignore
 .gitignore
-Jenkinsfile
 *.md
 .git
 .idea
