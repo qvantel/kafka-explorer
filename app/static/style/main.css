@@ -14,6 +14,10 @@ md-list-item.md-3-line .md-list-item-text, md-list-item.md-3-line>.md-no-style .
   margin: 8px;
 }
 
+.md-button.md-warn.md-raised {
+  color: rgb(255,255,255);
+}
+
 .comp-select-header {
   /* Please note: All these selectors are only applied to children of elements with the 'comp-select-header' class */
 }
