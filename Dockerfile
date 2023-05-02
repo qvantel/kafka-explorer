@@ -1,4 +1,4 @@
-FROM python:3.9.2-alpine3.13
+FROM python:3.9.16-alpine3.17
 
 RUN mkdir -p /opt/docker
 
@@ -12,7 +12,7 @@ RUN apk add --no-cache gcc g++ musl-dev libffi-dev make && \
 
 ADD . /opt/docker
 
-ENV VERSION=0.9.3
+ENV VERSION=0.10.0
 
 EXPOSE 5000
 
